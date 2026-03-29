@@ -1,0 +1,23 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #111111;
+  --paper: #f8f5f0;
+  --cream: #fffdf9;
+  --gold: #b8932a;
+  --muted: #7a7570;
+  --border: #d8d4ce;
+  --red: #c0392b;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #1c1a17;
+  min-height: 100vh;
+  color: var(--ink);
+}
+
+/* scrollbars */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
