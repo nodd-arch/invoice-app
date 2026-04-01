@@ -221,8 +221,13 @@ export default function InvoiceGenerator() {
             )}
             {data.activePayments.includes('mpesa') && (
               <>
-                <div style={S.row}>{F('Phone Number', 'mpNum', '+254 700 000000')}{F('Transaction Code', 'mpTx', 'ABC123DEF')}</div>
-                {F('Amount (KES)', 'mpAmt', 'KES 10,000')}
+                <div style={S.row}>
+                  {F('M-Pesa Number', 'mpNum', '0703119107')}
+                  {F('Amount (KES)', 'mpAmt', 'KES 10,000')}
+                </div>
+                {data.docType === 'RECEIPT' && (
+                  F('Transaction Code', 'mpTx', 'e.g. QHX4K2...')
+                )}
               </>
             )}
           </Section>
@@ -283,8 +288,8 @@ export default function InvoiceGenerator() {
           {/* Contact */}
           <Section label="Contact / Footer">
             <div style={S.row}>
-              {F('Contact Name', 'conName', 'First Last')}
-              {F('Phone', 'conPhone', '+254 700 000000')}
+              {F('Contact Name', 'conName', 'RAPHAEL GATHONDU')}
+              {F('Call / WhatsApp', 'conPhone', '0703119107')}
             </div>
             <div style={S.row}>
               {F('Website', 'conWeb', 'website.com')}

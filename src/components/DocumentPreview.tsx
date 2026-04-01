@@ -75,8 +75,8 @@ export default function DocumentPreview({ data }: Props) {
       <div key="mpesa" style={{ marginBottom: 10 }}>
         <div style={S.payTitle}>M-Pesa</div>
         <div style={S.detail}>
-          Phone: {data.mpNum || '+254 700 000000'}<br />
-          Transaction: {data.mpTx || 'ABC123DEF'}<br />
+          Pay To: {data.mpNum || '0703119107'}<br />
+          {isReceipt && data.mpTx && <>Transaction Code: {data.mpTx}<br /></>}
           {data.mpAmt && <>Amount: {data.mpAmt}</>}
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function DocumentPreview({ data }: Props) {
             <strong>{conName}</strong><br />
             {data.conWeb && <>{data.conWeb}<br /></>}
             {data.conEmail && <>{data.conEmail}<br /></>}
-            {data.conPhone}
+            {data.conPhone && <>CALL / WHATSAPP {data.conPhone}</>}
           </div>
         </div>
         <div style={{ padding: '16px 22px' }}>
