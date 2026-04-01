@@ -75,9 +75,17 @@ export default function DocumentPreview({ data }: Props) {
       <div key="mpesa" style={{ marginBottom: 10 }}>
         <div style={S.payTitle}>M-Pesa</div>
         <div style={S.detail}>
-          Pay To: {data.mpNum || '0703119107'}<br />
-          {isReceipt && data.mpTx && <>Transaction Code: {data.mpTx}<br /></>}
-          {data.mpAmt && <>Amount: {data.mpAmt}</>}
+          {isReceipt ? 'Paid To' : 'Pay To'}: <strong>{data.mpNum || '0703119107'}</strong><br />
+          {isReceipt && (
+            <>
+              Transaction Code:{' '}
+              <strong style={{ fontFamily: 'monospace', letterSpacing: 0.5, color: '#111' }}>
+                {data.mpTx || '—'}
+              </strong>
+              <br />
+            </>
+          )}
+          {data.mpAmt && <>Amount: <strong>{data.mpAmt}</strong></>}
         </div>
       </div>
     )

@@ -1,15 +1,33 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { FormData, LineItem, PaymentMethod, defaultFormData } from './types'
 import DocumentPreview from './DocumentPreview'
 
 const SignaturePad = dynamic(() => import('./SignaturePad'), { ssr: false })
 
-let _itemCounter = 2
+let _itemCounter = 1
+
+// Read next invoice number from localStorage (increments each session/download)
+function getNextInvNum(): string {
+  if (typeof window === 'undefined') return '0000001'
+  const stored = parseInt(localStorage.getItem('charis_inv_num') || '0', 10)
+  const next = stored + 1
+  return String(next).padStart(7, '0')
+}
+
+function saveInvNum(num: string) {
+  if (typeof window === 'undefined') return
+  localStorage.setItem('charis_inv_num', String(parseInt(num, 10)))
+}
 
 export default function InvoiceGenerator() {
   const [data, setData] = useState<FormData>(defaultFormData)
+
+  // Set auto-incremented number on mount (client only)
+  useEffect(() => {
+    setData(prev => ({ ...prev, invNum: getNextInvNum() }))
+  }, [])
 
   const set = useCallback((key: keyof FormData, value: unknown) => {
     setData(prev => ({ ...prev, [key]: value }))
@@ -95,6 +113,7 @@ export default function InvoiceGenerator() {
       }
 
       pdf.save(`${data.docType.toLowerCase()}-${data.invNum || 'doc'}.pdf`)
+      saveInvNum(data.invNum) // advance counter after successful save
     } catch (err) {
       alert('PDF generation failed: ' + (err as Error).message)
     }
@@ -128,6 +147,7 @@ export default function InvoiceGenerator() {
       link.download = `${data.docType.toLowerCase()}-${data.invNum || 'doc'}.png`
       link.href = canvas.toDataURL('image/png')
       link.click()
+      saveInvNum(data.invNum) // advance counter after successful save
     } catch (err) {
       alert('Image generation failed: ' + (err as Error).message)
     }
@@ -185,11 +205,51 @@ export default function InvoiceGenerator() {
           {/* Doc Details */}
           <Section label="Document Details">
             <div style={S.row}>
-              {F('Number', 'invNum', '0000001')}
+              <div style={S.field}>
+                <label style={S.label}>
+                  {data.docType === 'RECEIPT' ? 'Receipt' : 'Invoice'} Number
+                  <span style={{ marginLeft: 6, fontSize: 9, color: 'var(--gold)', fontWeight: 600 }}>AUTO</span>
+                </label>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    value={data.invNum}
+                    onChange={e => set('invNum', e.target.value)}
+                    style={{ ...S.input, fontVariantNumeric: 'tabular-nums', letterSpacing: 1 }}
+                  />
+                  <button
+                    title="Advance to next number"
+                    onClick={() => {
+                      const next = String(parseInt(data.invNum || '0', 10) + 1).padStart(7, '0')
+                      set('invNum', next)
+                    }}
+                    style={{
+                      padding: '0 10px', background: 'var(--ink)', color: '#fff',
+                      border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                      whiteSpace: 'nowrap', flexShrink: 0,
+                    }}
+                  >+1</button>
+                </div>
+              </div>
               {F(data.docType === 'RECEIPT' ? 'Date Settled' : 'Issue Date', 'date', '', 'date')}
             </div>
+
+            {/* Receipt-only: transaction code at the top for visibility */}
+            {data.docType === 'RECEIPT' && (
+              <div style={S.field}>
+                <label style={{ ...S.label, color: 'var(--gold)', fontWeight: 600 }}>
+                  M-Pesa Transaction Code <span style={{ color: 'var(--red)', fontSize: 11 }}>*</span>
+                </label>
+                <input
+                  value={data.mpTx}
+                  placeholder="e.g. QHX4K2MNOP"
+                  onChange={e => set('mpTx', e.target.value)}
+                  style={{ ...S.input, fontFamily: 'monospace', letterSpacing: 1, textTransform: 'uppercase' }}
+                />
+              </div>
+            )}
+
             <div style={S.field}>
-              <label style={S.label}>Project Description</label>
+              <label style={S.label}>Project / Items Description</label>
               <textarea value={data.description} onChange={e => set('description', e.target.value)}
                 placeholder="A brief overview of the project…"
                 style={{ ...S.input, resize: 'vertical', minHeight: 70, lineHeight: 1.5 }} />
