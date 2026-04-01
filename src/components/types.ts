@@ -80,8 +80,7 @@ export const defaultFormData: FormData = {
   taxLabel: 'VAT (Included in price)',
   conName: 'RAPHAEL GATHONDU', conPhone: '0703119107', conWeb: '', conEmail: '',
   lineItems: [
-    { id: 1, name: 'Billable Item 1', qty: 1, amount: '', extra: '' },
-    { id: 2, name: 'Billable Item 2', qty: 1, amount: '', extra: '' },
+    { id: 1, name: '', qty: 1, amount: '', extra: '' },
   ],
   sigDataUrl: null,
 }

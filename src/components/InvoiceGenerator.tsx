@@ -99,7 +99,40 @@ export default function InvoiceGenerator() {
       alert('PDF generation failed: ' + (err as Error).message)
     }
 
-    btn.textContent = `↓ Download ${data.docType} as PDF`
+    btn.textContent = `↓ PDF`
+    btn.disabled = false
+  }
+
+  const downloadPNG = async () => {
+    const { default: html2canvas } = await import('html2canvas')
+    const el = document.getElementById('doc-preview')
+    if (!el) return
+
+    const btn = document.getElementById('png-btn') as HTMLButtonElement
+    btn.textContent = 'Generating…'
+    btn.disabled = true
+
+    await new Promise(r => setTimeout(r, 150))
+
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 3, // higher scale = crisper PNG
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+      })
+
+      const link = document.createElement('a')
+      link.download = `${data.docType.toLowerCase()}-${data.invNum || 'doc'}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (err) {
+      alert('Image generation failed: ' + (err as Error).message)
+    }
+
+    btn.textContent = `↓ PNG`
     btn.disabled = false
   }
 
@@ -311,14 +344,30 @@ export default function InvoiceGenerator() {
         </div>
 
         {/* Footer / Download */}
-        <div style={{ padding: '16px 28px', borderTop: '1px solid var(--border)', background: 'var(--cream)' }}>
-          <button id="dl-btn" onClick={downloadPDF} style={{
-            width: '100%', padding: 14, background: 'var(--ink)', color: '#fff',
-            border: 'none', borderRadius: 8, fontFamily: 'inherit', fontSize: 14,
-            fontWeight: 600, cursor: 'pointer', letterSpacing: 0.3,
-          }}>
-            ↓ Download {data.docType} as PDF
-          </button>
+        <div style={{ padding: '14px 28px', borderTop: '1px solid var(--border)', background: 'var(--cream)' }}>
+          <div style={{ fontSize: 10, color: 'var(--muted)', marginBottom: 8, textAlign: 'center', letterSpacing: 0.3 }}>
+            {data.docType} · {data.invNum || '0000001'}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button id="dl-btn" onClick={downloadPDF} style={{
+              padding: '12px 0', background: 'var(--ink)', color: '#fff',
+              border: 'none', borderRadius: 8, fontFamily: 'inherit', fontSize: 13,
+              fontWeight: 600, cursor: 'pointer', letterSpacing: 0.3,
+            }}>
+              ↓ PDF
+            </button>
+            <button id="png-btn" onClick={downloadPNG} style={{
+              padding: '12px 0', background: 'var(--gold)', color: '#fff',
+              border: 'none', borderRadius: 8, fontFamily: 'inherit', fontSize: 13,
+              fontWeight: 600, cursor: 'pointer', letterSpacing: 0.3,
+            }}>
+              ↓ PNG
+            </button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+            <span style={{ fontSize: 9.5, color: 'var(--muted)' }}>PDF — for printing &amp; email</span>
+            <span style={{ fontSize: 9.5, color: 'var(--muted)' }}>PNG — for WhatsApp &amp; sharing</span>
+          </div>
         </div>
       </aside>
 
